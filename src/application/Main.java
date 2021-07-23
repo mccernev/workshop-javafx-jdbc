@@ -10,6 +10,12 @@ import javafx.stage.Stage;
 
 public class Main extends Application {
 
+	// Agora vou expor uma referência para a cena
+	// Para isso vou criar um atributo para poder
+	// guardar a referência à cena nesse atributo: 
+
+	private static Scene mainScene;
+	
 	@Override
 	public void start(Stage primaryStage) {
 		try {
@@ -21,8 +27,15 @@ public class Main extends Application {
 			// Macete para deixar o scrollPane ajustado à janela:
 			scrollPane.setFitToHeight(true);
 			scrollPane.setFitToWidth(true);
+			// Declaração de uma variável da cena:
 			// Scene mainScene = new Scene(parent);
-			Scene mainScene = new Scene(scrollPane);
+			
+			// Agora, ao inves de declarar, vou simplesmente 
+			// referenciar o atributo criado lá em cima;
+			//Scene mainScene = new Scene(scrollPane);
+			mainScene = new Scene(scrollPane);
+
+			// A cena foi criada e colocada dentro do primaryStage:
 			primaryStage.setScene(mainScene);
 			primaryStage.setTitle("Sample JavaFX application");
 			primaryStage.show();
@@ -33,6 +46,14 @@ public class Main extends Application {
 		}
 	}
 
+	// Como o atributo mainScene é um atributo privado
+	// Essa é uma boa prática.
+	// Vou criar um método para pegar essa referẽncfia:
+	// Esse método vai retornar o meu objeto mainScene:
+	public static Scene getMainScene(){
+		return mainScene;
+	}
+	
 	public static void main(String[] args) {
 		launch(args);
 	}
