@@ -1,9 +1,12 @@
 package gui;
 
 import java.net.URL;
+import java.util.List;
 import java.util.ResourceBundle;
 
 import application.Main;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
@@ -12,8 +15,23 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Stage;
 import model.entities.Department;
+import model.services.DepartmentService;
 
 public class DepartmentListController implements Initializable {
+	
+	// Vamos criar uma dependência para o nosso serviço:
+	
+	private DepartmentService service;
+	
+	// nós não vamos colocar aqui um
+	// service = new DepartmentService();
+	// porque se fizessemos assim estaríamos gerando um acoplamento forte.
+	// ao inves disso vamos fazer uma injeção de dependência.
+	
+	// Para isso vamos fazer um metodo setDepartment:
+		
+	
+	
 
 	// Vamos criar referências para nossos componentes da tela
 
@@ -29,11 +47,35 @@ public class DepartmentListController implements Initializable {
 	@FXML
 	private Button btNew;
 
+	private ObservableList<Department> obsList;
+	// Vamos precisar carregar os departments nessa obsList
+	// Para isto vamos criar o método updateTableView.
+	
+	
+	
+	
 	@FXML
 	public void onBtNewAction() {
 		System.out.println("onBtNewAction");
 	}
 
+	// Aqui para nossa injeção de dependência;
+	// Temos nossa inversão de controle (Princípio Solid).
+	
+	public void setDepartmentService(DepartmentService service) {
+		this.service = service;
+	}
+	
+	// Nós vamos precisar pegar esse service aqui,
+	// carregar os nossos departments,
+	// e mostrar dentro do meu tableView.
+	// Para isto vamos declarar os nossos atributos usando o Observablelist
+	
+	
+	
+	
+	
+	
 	@Override
 	public void initialize(URL url, ResourceBundle rb) {
 		initializeNodes();
@@ -59,6 +101,22 @@ public class DepartmentListController implements Initializable {
 
 		// Vamos dar um comando para que minha TableView acompanhe a janela;
 		tableViewDepartment.prefHeightProperty().bind(stage.heightProperty());
+	}
+	// Método responsável por:
+	// Acessar o serviço
+	// Carregar os departments
+	// e jogar os departments na minha observableList.
+			
+	public void updateTableView() {
+		if (service == null) {
+			throw new IllegalStateException("Service was null");
+		}
+		List<Department> list = service.findAll();
+		obsList = FXCollections.observableArrayList(list);
+		tableViewDepartment.setItems(obsList);
+		// como este é um método, vamos alterar provisoriamente
+		// o loadView para chamá-lo e carrega-lo antes de carregar a tela
+		// lá no mainViewController.
 	}
 
 }
