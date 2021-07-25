@@ -48,7 +48,8 @@ public class MainViewController implements Initializable {
 	@FXML
 	public void onMenuItemAboutAction() {
 		// Vamos fazer chamar a view da minha tela About):
-		loadView("/gui/About.fxml", x-> {});
+		loadView("/gui/About.fxml", x -> {
+		});
 		// Como acrescentamos um parâmetro ao loadView, temos que colocá-lo
 		// aqui também, neste caso ele vai ficar vazio.
 	}
@@ -70,15 +71,14 @@ public class MainViewController implements Initializable {
 	// durante o
 	// multitrading.
 
-	
-	// Para poder declarar o tipo de parâmetro vamos usar a interface 
-	// funcional Consumer: 
-	
+	// Para poder declarar o tipo de parâmetro vamos usar a interface
+	// funcional Consumer:
+
 	private synchronized <T> void loadView(String absoluteName, Consumer<T> initializingAction) {
 		try {
 			// Para carregar uma tela temos que usar aquele objeto tipo FXMLLoader
 			// Vamos instanciar um objeto do tipo FXMLLoader;
-			
+
 			FXMLLoader loader = new FXMLLoader(getClass().getResource(absoluteName));
 
 			// Meu objeto VBox vai carregar essa view:
@@ -133,30 +133,31 @@ public class MainViewController implements Initializable {
 			// O código vai ficar assim:
 			mainVBox.getChildren().add(mainMenu);
 			mainVBox.getChildren().addAll(newVBox.getChildren());
-			
+
 			// Depois de carregar a janela
-			// Eu vou acrescentar um comandinho especial para ativar a função que vocẽ passar lá no initializangAction.
+			// Eu vou acrescentar um comandinho especial para ativar a função que vocẽ
+			// passar lá no initializangAction.
 			// O meu objeto loader tem a função .getController().
 			// Essa função agora está retornando um Controller do tipo <T> que é o que
 			// usamos para parametrizar a nossa função.
-			// Então, vamos chamar o get.Controller 
-			// E o resultado desse getController eu vou atribuir para uma variável do tipo <T>.
-			
+			// Então, vamos chamar o get.Controller
+			// E o resultado desse getController eu vou atribuir para uma variável do tipo
+			// <T>.
+
 			T controller = loader.getController();
-			
+
 			// Então agora, o meu getController vai retornar o controlador do tipo que
 			// eu chamar lá em cima do código (neste caso, o "DepartmentListController"
-			// Se fosse outro caso, retornaria outro controlador que estivesse especificado. 
-			
+			// Se fosse outro caso, retornaria outro controlador que estivesse especificado.
+
 			// Como que eu faço para executar a função do meu Consumer?
 			// Eu tenho que chamar a função acept do meu consumer.
-			
+
 			initializingAction.accept(controller);
-			
-			// Ou seja essas duas últimas linhas de código vão executar 
+
+			// Ou seja essas duas últimas linhas de código vão executar
 			// a função que vocẽ passar como argumento lá em cima!
-			
-						
+
 		} catch (IOException e) {
 			// Vamos tratar essa exceção mostrando um Alert na tela;
 			Alerts.showAlert("IOException", "Error loading view", e.getMessage(), AlertType.ERROR);
