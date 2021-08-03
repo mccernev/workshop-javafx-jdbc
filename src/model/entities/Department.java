@@ -18,6 +18,10 @@ public class Department implements Serializable {
 	}
 
 	public int getId() {
+		if (id == null) {
+			id = 0;
+			}
+
 		return id;
 	}
 
