@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.ResourceBundle;
 
 import application.Main;
+import gui.listeners.DataChangeListener;
 import gui.util.Alerts;
 import gui.util.Utils;
 import javafx.collections.FXCollections;
@@ -26,21 +27,20 @@ import javafx.stage.Stage;
 import model.entities.Department;
 import model.services.DepartmentService;
 
-public class DepartmentListController implements Initializable {
-	
+// Vamos implementartambém a interface DataChangeListener:
+
+public class DepartmentListController implements Initializable, DataChangeListener {
+
 	// Vamos criar uma dependência para o nosso serviço:
-	
+
 	private DepartmentService service;
-	
+
 	// nós não vamos colocar aqui um
 	// service = new DepartmentService();
 	// porque se fizessemos assim estaríamos gerando um acoplamento forte.
 	// ao inves disso vamos fazer uma injeção de dependência.
-	
+
 	// Para isso vamos fazer um metodo setDepartment:
-		
-	
-	
 
 	// Vamos criar referências para nossos componentes da tela
 
@@ -59,8 +59,7 @@ public class DepartmentListController implements Initializable {
 	private ObservableList<Department> obsList;
 	// Vamos precisar carregar os departments nessa obsList
 	// Para isto vamos criar o método updateTableView.
-	
-	
+
 	@FXML
 	public void onBtNewAction(ActionEvent event) {
 		Stage parentStage = Utils.currentStage(event);
@@ -70,21 +69,16 @@ public class DepartmentListController implements Initializable {
 
 	// Aqui para nossa injeção de dependência;
 	// Temos nossa inversão de controle (Princípio Solid).
-	
+
 	public void setDepartmentService(DepartmentService service) {
 		this.service = service;
 	}
-	
+
 	// Nós vamos precisar pegar esse service aqui,
 	// carregar os nossos departments,
 	// e mostrar dentro do meu tableView.
 	// Para isto vamos declarar os nossos atributos usando o Observablelist
-	
-	
-	
-	
-	
-	
+
 	@Override
 	public void initialize(URL url, ResourceBundle rb) {
 		initializeNodes();
@@ -115,7 +109,7 @@ public class DepartmentListController implements Initializable {
 	// Acessar o serviço
 	// Carregar os departments
 	// e jogar os departments na minha observableList.
-			
+
 	public void updateTableView() {
 		if (service == null) {
 			throw new IllegalStateException("Service was null");
@@ -130,51 +124,57 @@ public class DepartmentListController implements Initializable {
 
 	// Esse método vai receber como parâmetro um stage
 	// da janelinha que criou a janelinha de diálogo:
-	
+
 	// Por que?
 	// Porque quando a gente cria uma janela de diálogo a gente tem que
-	// informar para ela quem que é o Stage que criou a janelinha de 
+	// informar para ela quem que é o Stage que criou a janelinha de
 	// diálogo.
-	
+
 	// Então já vamos informar aqui:
-	
-	
-	private void createDialogForm (Department obj, String absoluteName, Stage parentStage) {
-		try{
+
+	private void createDialogForm(Department obj, String absoluteName, Stage parentStage) {
+		try {
 			FXMLLoader loader = new FXMLLoader(getClass().getResource(absoluteName));
 			Pane pane = loader.load();
-			
+
 			// Vamos fazer uma referencia para o controladro:
 			DepartmentFormController controller = loader.getController();
-						
+
 			// Vamos injetar nesse controlador, o departamento:
 			controller.setDepartment(obj);
-		
+
 			// Vamos injetar o serviço:
 			controller.setDepartmentService(new DepartmentService());
+
+			// Vamos nos inscrever para escutar o evento do onDataChanged:
+			controller.subscribeDataChangeListener(this);
 			
 			// Vamos chamar o método para carregar os dados do objeto:
 			controller.updateFormData();
-			
+
 			// Quando vou carregar uma janelinha modal
 			// na frente de outra janela.
 			// Eu tenho que instanciar um outro Stage:
-			
+
 			Stage dialogStage = new Stage();
 			dialogStage.setTitle("Enter Department data");
 			dialogStage.setScene(new Scene(pane));
 			dialogStage.setResizable(false);
-			// Aqui eu defino quem é o 
+			// Aqui eu defino quem é o
 			// Stage pai dessa janela:
 			dialogStage.initOwner(parentStage);
 			dialogStage.initModality(Modality.WINDOW_MODAL);
 			dialogStage.showAndWait();
-			
-		}
-		catch (IOException e){
+
+		} catch (IOException e) {
 			Alerts.showAlert("IO Exception", "Error loading view", e.getMessage(), AlertType.ERROR);
 		}
-			
+
 	}
-		
+
+	@Override
+	public void onDataChanged() {
+		updateTableView();
+	}
+
 }

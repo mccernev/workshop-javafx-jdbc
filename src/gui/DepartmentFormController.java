@@ -1,9 +1,12 @@
 package gui;
 
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.ResourceBundle;
 
 import db.DbException;
+import gui.listeners.DataChangeListener;
 import gui.util.Alerts;
 import gui.util.Constraints;
 import gui.util.Utils;
@@ -20,13 +23,21 @@ import model.services.DepartmentService;
 public class DepartmentFormController implements Initializable {
 
 	// Vamos criar uma dependência:
-
 	private Department entity;
 
 	// Vamos criar uma dependência:
-
 	private DepartmentService service;
 
+	// Vamos criar uma lista de objetos do tipo dataChangeListeners:
+	private List<DataChangeListener> dataChangeListeners = new ArrayList<>();
+	
+	// Agora o controlador vai permitir outros objetos se inscreverem nessa lista
+	// e receberem o evento.
+	
+	// Para que eles possam se inscrever, temos que disponibilizar um método para isto:
+	// Vamos criar o método subscribeDataChangeListener.
+	
+	
 	// Declaração dos componentes da tela:
 
 	@FXML
@@ -56,9 +67,17 @@ public class DepartmentFormController implements Initializable {
 
 	public void setDepartmentService(DepartmentService service) {
 		this.service = service;
-
 	}
 
+	public void subscribeDataChangeListener(DataChangeListener listener) {
+		dataChangeListeners.add(listener);
+		// A partir de agora outros objetos, desde que implementem
+		// essa interface, eles podem se inscrever para receber o evento da minha classe.
+	}
+	
+	
+	
+	
 	// Como não estamos usando um container
 	// um framework para fazer a injeção de dependência
 	// estamos fazendo a injeção de dependência manual
@@ -77,11 +96,18 @@ public class DepartmentFormController implements Initializable {
 		try {
 			entity = getFormData();
 			service.saveOrUpdate(entity);
+			notifyDataChangeLinsteners();
 			Utils.currentStage(event).close();
 		} catch (DbException e) {
 			Alerts.showAlert("Error saving object", null, e.getMessage(), AlertType.ERROR);
 		}
 
+	}
+
+	private void notifyDataChangeLinsteners() {
+		for (DataChangeListener listener: dataChangeListeners) {
+			listener.onDataChanged();
+		}
 	}
 
 	private Department getFormData() {
