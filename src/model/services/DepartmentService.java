@@ -1,6 +1,5 @@
 package model.services;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import model.dao.DaoFactory;
@@ -11,16 +10,15 @@ import model.entities.Department;
 // lá no controlador da tela DepartmentList
 // Isto será feito lá no DepartmentListController.
 
-
 public class DepartmentService {
 
 	// Agora que o banco já está acessivel
 	// Vamos declarar uma dependência e vamos usar a minha fábrica
 	// para injetar a dependência aqui:
-	
+
 	private DepartmentDao dao = DaoFactory.createDepartmentDao();
-	
-	//Método que retorna todos os departments:
+
+	// Método que retorna todos os departments:
 	public List<Department> findAll() {
 		// Por enquanto não vamos buscar os dados no banco de dados
 		// Vamos MOCKAR os dados
@@ -32,6 +30,17 @@ public class DepartmentService {
 		// list.add(new Department(3, "Electronics"));
 		// return list;
 		return dao.findAll();
+	}
+
+	public void saveOrUpdate(Department obj) {
+		// Vamos testar se eu preciso inserir um
+		// department ou atualizar um department existente:
+		if (obj.getId() == null) {
+			dao.insert(obj);
+		}
+		else {
+			dao.update(obj);
+		}
 	}
 
 }

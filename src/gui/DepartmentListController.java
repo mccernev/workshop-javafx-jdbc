@@ -149,7 +149,11 @@ public class DepartmentListController implements Initializable {
 						
 			// Vamos injetar nesse controlador, o departamento:
 			controller.setDepartment(obj);
-			// Vamos charmar o método para carregar os dados do objeto:
+		
+			// Vamos injetar o serviço:
+			controller.setDepartmentService(new DepartmentService());
+			
+			// Vamos chamar o método para carregar os dados do objeto:
 			controller.updateFormData();
 			
 			// Quando vou carregar uma janelinha modal

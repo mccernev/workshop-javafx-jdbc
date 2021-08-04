@@ -5,27 +5,23 @@ import java.io.Serializable;
 public class Department implements Serializable {
 
 	private static final long serialVersionUID = 1L;
+	
 	private Integer id;
 	private String name;
 
 	public Department() {
 	}
 
-		
 	public Department(Integer id, String name) {
 		this.id = id;
 		this.name = name;
 	}
 
-	public int getId() {
-		if (id == null) {
-			id = 0;
-			}
-
+	public Integer getId() {
 		return id;
 	}
 
-	public void setId(int id) {
+	public void setId(Integer id) {
 		this.id = id;
 	}
 
