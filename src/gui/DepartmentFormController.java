@@ -3,7 +3,9 @@ package gui;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.ResourceBundle;
+import java.util.Set;
 
 import db.DbException;
 import gui.listeners.DataChangeListener;
@@ -18,6 +20,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import model.entities.Department;
+import model.exceptions.ValidationException;
 import model.services.DepartmentService;
 
 public class DepartmentFormController implements Initializable {
@@ -30,14 +33,14 @@ public class DepartmentFormController implements Initializable {
 
 	// Vamos criar uma lista de objetos do tipo dataChangeListeners:
 	private List<DataChangeListener> dataChangeListeners = new ArrayList<>();
-	
+
 	// Agora o controlador vai permitir outros objetos se inscreverem nessa lista
 	// e receberem o evento.
-	
-	// Para que eles possam se inscrever, temos que disponibilizar um método para isto:
+
+	// Para que eles possam se inscrever, temos que disponibilizar um método para
+	// isto:
 	// Vamos criar o método subscribeDataChangeListener.
-	
-	
+
 	// Declaração dos componentes da tela:
 
 	@FXML
@@ -72,12 +75,10 @@ public class DepartmentFormController implements Initializable {
 	public void subscribeDataChangeListener(DataChangeListener listener) {
 		dataChangeListeners.add(listener);
 		// A partir de agora outros objetos, desde que implementem
-		// essa interface, eles podem se inscrever para receber o evento da minha classe.
+		// essa interface, eles podem se inscrever para receber o evento da minha
+		// classe.
 	}
-	
-	
-	
-	
+
 	// Como não estamos usando um container
 	// um framework para fazer a injeção de dependência
 	// estamos fazendo a injeção de dependência manual
@@ -98,14 +99,18 @@ public class DepartmentFormController implements Initializable {
 			service.saveOrUpdate(entity);
 			notifyDataChangeLinsteners();
 			Utils.currentStage(event).close();
-		} catch (DbException e) {
+		} 
+		catch (ValidationException e){
+			setErrorMessages(e.getErrors());
+		}
+		catch (DbException e) {
 			Alerts.showAlert("Error saving object", null, e.getMessage(), AlertType.ERROR);
 		}
 
 	}
 
 	private void notifyDataChangeLinsteners() {
-		for (DataChangeListener listener: dataChangeListeners) {
+		for (DataChangeListener listener : dataChangeListeners) {
 			listener.onDataChanged();
 		}
 	}
@@ -114,8 +119,22 @@ public class DepartmentFormController implements Initializable {
 		// Esse método vai ler os dados do formulário
 		Department obj = new Department();
 
+		// Para poder fazer as verificações
+		// Vamos instanciar uma exceção ValidationException
+		// Mas não vamos lançar a exceção
+		ValidationException exception = new ValidationException("Validation error");
+		// Para cada campo vamos fazer as validações:
+
 		obj.setId(Utils.tryParseToInt(txtId.getText()));
+
+		if (txtName.getText() == null || txtName.getText().trim().equals("")) {
+			exception.addError("name", "Field can't be empty");
+		}
 		obj.setName(txtName.getText());
+
+		if (exception.getErrors().size() > 0) {
+			throw exception;
+		}
 
 		return obj;
 	}
@@ -145,4 +164,10 @@ public class DepartmentFormController implements Initializable {
 		txtName.setText(entity.getName());
 	}
 
+	private void setErrorMessages(Map<String, String> errors) {
+		Set<String> fields = errors.keySet();
+		if (fields.contains("name")) {
+			labelErrorName.setText(errors.get("name"));
+		}
+	}
 }
