@@ -1,8 +1,11 @@
 package gui;
 
 import java.net.URL;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.Set;
@@ -17,6 +20,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
+import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import model.entities.Seller;
@@ -25,23 +29,11 @@ import model.services.SellerService;
 
 public class SellerFormController implements Initializable {
 
-	// Vamos criar uma dependência:
 	private Seller entity;
 
-	// Vamos criar uma dependência:
 	private SellerService service;
 
-	// Vamos criar uma lista de objetos do tipo dataChangeListeners:
 	private List<DataChangeListener> dataChangeListeners = new ArrayList<>();
-
-	// Agora o controlador vai permitir outros objetos se inscreverem nessa lista
-	// e receberem o evento.
-
-	// Para que eles possam se inscrever, temos que disponibilizar um método para
-	// isto:
-	// Vamos criar o método subscribeDataChangeListener.
-
-	// Declaração dos componentes da tela:
 
 	@FXML
 	private TextField txtId;
@@ -53,16 +45,28 @@ public class SellerFormController implements Initializable {
 	private Label labelErrorName;
 
 	@FXML
+	private Label labelErrorEmail;
+
+	@FXML
+	private Label labelErrorBithDate;
+
+	@FXML
+	private Label labelErrorBaseSalary;
+
+	@FXML
+	private TextField txtEmail;
+
+	@FXML
+	private DatePicker dpBirthDate;
+
+	@FXML
+	private TextField txtBaseSalary;
+
+	@FXML
 	private Button btSave;
 
 	@FXML
 	private Button btCancel;
-
-	// Declaração dos métodos dos componentes:
-
-	// Método para implementar a dependência:
-	// Assim nosso controlador vai ter uma instância
-	// do departament:
 
 	public void setSeller(Seller entity) {
 		this.entity = entity;
@@ -74,16 +78,7 @@ public class SellerFormController implements Initializable {
 
 	public void subscribeDataChangeListener(DataChangeListener listener) {
 		dataChangeListeners.add(listener);
-		// A partir de agora outros objetos, desde que implementem
-		// essa interface, eles podem se inscrever para receber o evento da minha
-		// classe.
 	}
-
-	// Como não estamos usando um container
-	// um framework para fazer a injeção de dependência
-	// estamos fazendo a injeção de dependência manual
-	// Por isso estamos usando essa programação defensiva no início
-	// do código do botão:
 
 	@FXML
 	public void onBtSaveAction(ActionEvent event) {
@@ -99,11 +94,9 @@ public class SellerFormController implements Initializable {
 			service.saveOrUpdate(entity);
 			notifyDataChangeLinsteners();
 			Utils.currentStage(event).close();
-		} 
-		catch (ValidationException e){
+		} catch (ValidationException e) {
 			setErrorMessages(e.getErrors());
-		}
-		catch (DbException e) {
+		} catch (DbException e) {
 			Alerts.showAlert("Error saving object", null, e.getMessage(), AlertType.ERROR);
 		}
 
@@ -146,7 +139,11 @@ public class SellerFormController implements Initializable {
 
 	private void initializeNodes() {
 		Constraints.setTextFieldInteger(txtId);
-		Constraints.setTextFieldMaxLength(txtName, 30);
+		Constraints.setTextFieldMaxLength(txtName, 70);
+		Constraints.setTextFieldDouble(txtBaseSalary);
+		Constraints.setTextFieldMaxLength(txtEmail, 60);
+		Utils.formatDatePicker(dpBirthDate, "dd/MM/yyy");
+
 	}
 
 	public void updateFormData() {
@@ -155,6 +152,15 @@ public class SellerFormController implements Initializable {
 		}
 		txtId.setText(String.valueOf(entity.getId()));
 		txtName.setText(entity.getName());
+		txtEmail.setText(entity.getEmail());
+		Locale.setDefault(Locale.US);
+		txtBaseSalary.setText(String.format("%.2f", entity.getBaseSalary()));
+
+		if (entity.getBirthDate() != null) {
+
+			dpBirthDate.setValue(LocalDate.ofInstant(entity.getBirthDate().toInstant(), ZoneId.systemDefault()));
+		}
+
 	}
 
 	private void setErrorMessages(Map<String, String> errors) {
