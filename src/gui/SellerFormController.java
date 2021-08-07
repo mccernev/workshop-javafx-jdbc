@@ -1,9 +1,11 @@
 package gui;
 
 import java.net.URL;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -61,7 +63,7 @@ public class SellerFormController implements Initializable {
 	private Label labelErrorEmail;
 
 	@FXML
-	private Label labelErrorBithDate;
+	private Label labelErrorBirthDate;
 
 	@FXML
 	private Label labelErrorBaseSalary;
@@ -136,6 +138,48 @@ public class SellerFormController implements Initializable {
 		}
 		obj.setName(txtName.getText());
 
+		if (txtEmail.getText() == null || txtEmail.getText().trim().equals("")) {
+			exception.addError("email", "Field can't be empty");
+		}
+		obj.setEmail(txtEmail.getText());
+		
+		
+		
+		
+		
+
+		if (dpBirthDate.getValue() == null) {
+			exception.addError("birthDate", "Field can't be empty");
+		
+		} 
+		
+		else {
+		
+			
+			// Vou pegar uma variável do tipo instant
+			// Vou chama-la de instant (minúsculo)
+			// Essa variável vai receber o conteúdo lá do DatePickard.
+			// Vamos chamar o método atStartOfDay.
+			// Ele vai converter a data que foi escolhida lá no horário do computador do
+			// usuário
+			// para o Instant que é uma data independentemente de localidade.
+
+			Instant instant = Instant.from(dpBirthDate.getValue().atStartOfDay(ZoneId.systemDefault()));
+
+			// Mas o meu objeto espera um dado do tipo Date.
+			// Então vamos precisar converter o instant para o date.
+			// O código vai ficar assim:
+
+			obj.setBirthDate(Date.from(instant));
+		}
+//aqui
+		if (txtBaseSalary.getText() == null || txtBaseSalary.getText().trim().equals("")) {
+			exception.addError("baseSalary", "Field can't be empty");
+		}
+		obj.setBaseSalary(Utils.tryParseToDouble(txtBaseSalary.getText()));
+		
+		obj.setDepartment(comboBoxDepartment.getValue());
+
 		if (exception.getErrors().size() > 0) {
 			throw exception;
 		}
@@ -159,6 +203,7 @@ public class SellerFormController implements Initializable {
 		Constraints.setTextFieldDouble(txtBaseSalary);
 		Constraints.setTextFieldMaxLength(txtEmail, 60);
 		Utils.formatDatePicker(dpBirthDate, "dd/MM/yyy");
+		
 		initializeComboBoxDepartment();
 
 	}
@@ -196,9 +241,12 @@ public class SellerFormController implements Initializable {
 
 	private void setErrorMessages(Map<String, String> errors) {
 		Set<String> fields = errors.keySet();
-		if (fields.contains("name")) {
-			labelErrorName.setText(errors.get("name"));
-		}
+
+		labelErrorName.setText((fields.contains("name") ? errors.get("name") : ""));
+		labelErrorEmail.setText((fields.contains("email") ? errors.get("email") : ""));
+		labelErrorBirthDate.setText((fields.contains("birthDate") ? errors.get("birthDate") : ""));
+		labelErrorBaseSalary.setText((fields.contains("baseSalary") ? errors.get("baseSalary") : ""));
+
 	}
 
 	private void initializeComboBoxDepartment() {
